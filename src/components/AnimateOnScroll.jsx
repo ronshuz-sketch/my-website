@@ -1,8 +1,8 @@
-import { motion } from 'framer-motion'
+import { motion as Motion } from 'framer-motion'
 
 export default function AnimateOnScroll({ children, className = '' }) {
   return (
-    <motion.div
+    <Motion.div
       initial={{ opacity: 0, y: 24 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, amount: 0.15 }}
@@ -10,6 +10,6 @@ export default function AnimateOnScroll({ children, className = '' }) {
       className={className}
     >
       {children}
-    </motion.div>
+    </Motion.div>
   )
 }

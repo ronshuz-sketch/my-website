@@ -1,784 +1,1174 @@
-import React from "react";
 import "./style.css";
+import Logo from "./components/Logo";
+import TechDeepDives from "./components/TechDeepDives";
+import AnimateOnScroll from "./components/AnimateOnScroll";
+import HeroGraphic from "./components/HeroGraphic";
+import { useEffect, useState, useRef } from "react";
+import Privacy from "./pages/Privacy";
+import Terms from "./pages/Terms";
+import About from "./pages/About";
+import Talents from "./pages/Talents";
+import Tech from "./pages/Tech";
+import PricingPage from "./pages/Pricing";
+import CTA from "./pages/CTA";
+import Workflow from "./pages/Workflow";
+
+function Detail({ title, subtitle, items, code }) {
+  return (
+    <>
+      <nav className="navbar">
+        <div className="nav-container">
+          <div className="nav-left"><Logo /></div>
+          <ul className="nav-links">
+            <li><a href="#" style={{ color: 'inherit', textDecoration: 'none' }}>Home</a></li>
+            <li><a href="#about" style={{ color: 'inherit', textDecoration: 'none' }}>About</a></li>
+            <li><a href="#talents" style={{ color: 'inherit', textDecoration: 'none' }}>Talents</a></li>
+            <li><a href="#tech" style={{ color: 'inherit', textDecoration: 'none' }}>Technical deep dives</a></li>
+            <li><a href="#pricing" style={{ color: 'inherit', textDecoration: 'none' }}>Pricing</a></li>
+          </ul>
+          <a href={"https://mail.google.com/mail/?view=cm&fs=1&to=contact@stackzy.io&su=Stackzy%20Inquiry&body=Hello%20Team%20Stackzy%2C%0A%0AI%27d%20like%20to%20get%20started.%20Please%20reach%20out%20with%20next%20steps."} target="_blank" rel="noopener noreferrer" className="nav-cta" style={{ textDecoration: 'none' }}>Get Started</a>
+        </div>
+      </nav>
+      <section className="talent">
+        <div className="talent-container">
+          <h2 className="section-title">{title}</h2>
+          <p className="section-subtitle">{subtitle}</p>
+          <div className="talent-grid">
+            {items.map((it, i) => (
+              <div key={i} className="talent-card">
+                <h3>{it.heading}</h3>
+                <p>{it.body}</p>
+              </div>
+            ))}
+          </div>
+          {code && (
+            <div className="code-block" style={{ marginTop: '24px' }}>
+              <div className="code-top">
+                <span className="dot red"></span>
+                <span className="dot yellow"></span>
+                <span className="dot green"></span>
+                <span className="code-label">snippet</span>
+              </div>
+              <pre><code>{code}</code></pre>
+            </div>
+          )}
+        </div>
+      </section>
+    </>
+  );
+}
 
 function App() {
+  const [route, setRoute] = useState(window.location.hash.replace("#", "") || "");
+  const [scrolled, setScrolled] = useState(false);
+  const howRef = useRef(null);
+  useEffect(() => {
+    const onHash = () => setRoute(window.location.hash.replace("#", ""));
+    window.addEventListener("hashchange", onHash);
+    const onScroll = () => setScrolled(window.scrollY > 120);
+    window.addEventListener("scroll", onScroll);
+    onScroll();
+    return () => {
+      window.removeEventListener("hashchange", onHash);
+      window.removeEventListener("scroll", onScroll);
+    };
+  }, []);
 
+  const nav = (
+    <nav className="navbar">
+      <div className="nav-container">
+        <div className="nav-left">
+          {(() => {
+            const isHome = !route;
+            const mode = isHome && !scrolled ? "word" : "merge";
+            return <Logo mode={mode} />;
+          })()}
+        </div>
+        <ul className="nav-links">
+          <li><a href="#" style={{ color: 'inherit', textDecoration: 'none' }}>Home</a></li>
+          <li><a href="#about" style={{ color: 'inherit', textDecoration: 'none' }}>About</a></li>
+          <li><a href="#talents" style={{ color: 'inherit', textDecoration: 'none' }}>Talents</a></li>
+          <li><a href="#tech" style={{ color: 'inherit', textDecoration: 'none' }}>Technical deep dives</a></li>
+          <li><a href="#pricing" style={{ color: 'inherit', textDecoration: 'none' }}>Pricing</a></li>
+        </ul>
+        <a href={"https://mail.google.com/mail/?view=cm&fs=1&to=contact@stackzy.io&su=Stackzy%20Inquiry&body=Hello%20Team%20Stackzy%2C%0A%0AI%27d%20like%20to%20get%20started.%20Please%20reach%20out%20with%20next%20steps."} target="_blank" rel="noopener noreferrer" className="nav-cta" style={{ textDecoration: 'none' }}>Get Started</a>
+      </div>
+    </nav>
+  );
 
+  if (route.startsWith("hire/")) {
+    const slug = route.split("/")[1];
+    const map = {
+      backend: {
+        title: "Backend engineers",
+        subtitle: "Depth in APIs, databases, performance, and reliability.",
+        items: [
+          { heading: "System design", body: "Clear boundaries, interfaces, modularity." },
+          { heading: "Storage choices", body: "Postgres, Redis, patterns for scale." },
+          { heading: "Operational health", body: "Observability, graceful degradation." },
+        ],
+        code: `// Go API handler with context cancellation and error boundaries
+http.HandleFunc("/v1/users", func(w http.ResponseWriter, r *http.Request) {
+  ctx := r.Context()
+  users, err := repo.ListUsers(ctx)
+  if err != nil {
+    http.Error(w, "internal", http.StatusInternalServerError)
+    return
+  }
+  json.NewEncoder(w).Encode(users)
+})`,
+      },
+      fullstack: {
+        title: "Full‑stack engineers",
+        subtitle: "Frontend and backend with product thinking.",
+        items: [
+          { heading: "Frontend craft", body: "Accessible, fast interfaces." },
+          { heading: "API shaping", body: "Stable contracts and iterations." },
+          { heading: "UX loops", body: "Feedback-driven refinement." },
+        ],
+        code: `// React + Express wiring
+app.get("/api/todos", async (req, res) => {
+  const rows = await db.query("select * from todos order by created_at desc");
+  res.json(rows);
+});
+// Frontend
+useEffect(() => { fetch("/api/todos").then(r => r.json()).then(setTodos) }, [])`,
+      },
+      "ai-ml": {
+        title: "AI & ML engineers",
+        subtitle: "Pipelines, models, and applied machine learning.",
+        items: [
+          { heading: "Data pipelines", body: "Ingestion, cleaning, monitoring." },
+          { heading: "Modeling", body: "Training, evaluation, reproducibility." },
+          { heading: "Serving", body: "Efficient inference and versioning." },
+        ],
+        code: `# PyTorch inference
+model.eval()
+with torch.no_grad():
+  x = torch.tensor(batch).to(device)
+  y = model(x)
+  probs = torch.softmax(y, dim=1)`,
+      },
+      blockchain: {
+        title: "Blockchain engineers",
+        subtitle: "Smart contracts, protocol work, and security.",
+        items: [
+          { heading: "Contracts", body: "Safety, audits, testing." },
+          { heading: "Protocols", body: "Integration and performance." },
+          { heading: "Security", body: "Threat modeling and hardening." },
+        ],
+        code: `// Solidity snippet
+pragma solidity ^0.8.20;
+contract Vault { mapping(address=>uint) bal; 
+  function deposit() external payable { bal[msg.sender] += msg.value; }
+  function balanceOf(address a) external view returns(uint){ return bal[a]; }
+}`,
+      },
+      "cloud-devops": {
+        title: "Cloud & DevOps",
+        subtitle: "CI/CD, Kubernetes, observability, infrastructure automation.",
+        items: [
+          { heading: "Pipelines", body: "Reliable delivery and rollbacks." },
+          { heading: "Kubernetes", body: "Practical deployments and ops." },
+          { heading: "Observability", body: "Tracing, metrics, logs." },
+        ],
+        code: `# GitHub Actions CI
+name: ci
+on: [push]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+      - run: npm ci && npm test`,
+      },
+      cybersecurity: {
+        title: "Cybersecurity",
+        subtitle: "Threat modeling, audits, secure coding, incident response.",
+        items: [
+          { heading: "Audits", body: "Static/dynamic checks and reviews." },
+          { heading: "Practices", body: "Least privilege and safe defaults." },
+          { heading: "Response", body: "Preparedness and playbooks." },
+        ],
+        code: `// Express helmet and rate limit
+import helmet from "helmet";
+import rateLimit from "express-rate-limit";
+app.use(helmet());
+app.use(rateLimit({ windowMs: 60000, max: 120 }));`,
+      },
+      "ui-ux": {
+        title: "UI / UX",
+        subtitle: "User research, interaction design, prototyping, systems.",
+        items: [
+          { heading: "Research", body: "Discovery, interviews, synthesis." },
+          { heading: "Design", body: "Flows, components, accessibility." },
+          { heading: "Prototypes", body: "Validate assumptions early." },
+        ],
+        code: `/* CSS focus ring and reduced motion */
+button:focus { outline: 3px solid #10a37f; outline-offset: 3px; }
+@media (prefers-reduced-motion: reduce) { * { animation: none !important; } }`,
+      },
+      data: {
+        title: "Data engineers & analysts",
+        subtitle: "ETL, warehousing, analytics, dashboards, reliable ops.",
+        items: [
+          { heading: "ETL", body: "Reliable ingestion and transformations." },
+          { heading: "Warehouse", body: "Modeling and performance." },
+          { heading: "Analytics", body: "Dashboards and decisions." },
+        ],
+        code: `# Python ETL outline
+for row in source:
+  cleaned = normalize(row)
+  sink.write(cleaned)`,
+      },
+      innovation: {
+        title: "Innovation & R&D",
+        subtitle: "Exploration, prototypes, feasibility studies, spikes.",
+        items: [
+          { heading: "Exploration", body: "Goal-driven discovery work." },
+          { heading: "Prototypes", body: "Cut risk with focused proofs." },
+          { heading: "Feasibility", body: "Scope, constraints, tradeoffs." },
+        ],
+        code: `// Feature flag stub
+function enabled(flag) { return process.env['FF_'+flag] === 'on' }`,
+      },
+      "qa-testing": {
+        title: "QA & Testing",
+        subtitle: "Automation, CI integration, and resilient releases.",
+        items: [
+          { heading: "Automation", body: "Coverage, speed, reliability." },
+          { heading: "Integration", body: "CI, gates, and quality bars." },
+          { heading: "Resilience", body: "Safety nets and rollbacks." },
+        ],
+        code: `// Jest sample
+test("adds", () => { expect(1+2).toBe(3) })`,
+      },
+    };
+    const cfg = map[slug];
+    if (cfg) return <Detail title={cfg.title} subtitle={cfg.subtitle} items={cfg.items} code={cfg.code} />;
+  }
 
+  if (route.startsWith("mindset/")) {
+    const slug = route.split("/")[1];
+    const map = {
+      "global-network": {
+        title: "Global network",
+        subtitle: "Topology-aware designs and practical scaling patterns.",
+        items: [
+          { heading: "Boundaries", body: "APIs that respect latency and failure." },
+          { heading: "Replication", body: "Data layouts for global reach." },
+          { heading: "Caching", body: "Reduce load with right TTLs." },
+        ],
+      },
+      "robust-code": {
+        title: "Robust code",
+        subtitle: "Error handling and boundaries that keep systems healthy.",
+        items: [
+          { heading: "Contracts", body: "Explicit inputs and outputs." },
+          { heading: "Fallbacks", body: "Graceful degradation paths." },
+          { heading: "Testing", body: "Meaningful coverage and checks." },
+        ],
+      },
+    };
+    const cfg = map[slug];
+    if (cfg) return <Detail title={cfg.title} subtitle={cfg.subtitle} items={cfg.items} />;
+  }
+
+  if (route.startsWith("trust/")) {
+    const slug = route.split("/")[1];
+    const map = {
+      evaluation: {
+        title: "IIT-linked evaluation mindset",
+        subtitle: "Fundamentals, reasoning, and decision-making over buzzwords.",
+        items: [
+          { heading: "Depth", body: "Strong core understanding and clarity." },
+          { heading: "Judgment", body: "Practical choices under constraints." },
+          { heading: "Ownership", body: "Responsible, long-term thinking." },
+        ],
+      },
+      selective: {
+        title: "Selective by design",
+        subtitle: "Fit and depth prioritized over scale.",
+        items: [
+          { heading: "Signal", body: "High-quality matches and trust." },
+          { heading: "Continuity", body: "Stable relationships and outcomes." },
+          { heading: "Consistency", body: "Quality that compounds." },
+        ],
+      },
+      "direct-collab": {
+        title: "Direct collaboration",
+        subtitle: "Work directly with the engineer doing the work.",
+        items: [
+          { heading: "No layers", body: "Reduce gaps and speed decisions." },
+          { heading: "Clarity", body: "Aligned goals and expectations." },
+          { heading: "Focus", body: "Time spent building, not pitching." },
+        ],
+      },
+    };
+    const cfg = map[slug];
+    if (cfg) return <Detail title={cfg.title} subtitle={cfg.subtitle} items={cfg.items} />;
+  }
+  if (route === "privacy") {
+    return (<><>{nav}</><Privacy /></>);
+  }
+  if (route === "terms") {
+    return (<><>{nav}</><Terms /></>);
+  }
+  if (route === "about") {
+    return (<><>{nav}</><About /></>);
+  }
+  if (route === "talents") {
+    return (<><>{nav}</><Talents /></>);
+  }
+  if (route === "tech") {
+    return (<><>{nav}</><Tech /></>);
+  }
+  if (route === "pricing") {
+    return (<><>{nav}</><PricingPage /></>);
+  }
+  if (route === "cta") {
+    return (<><>{nav}</><CTA /></>);
+  }
+  const SHOW_WORKFLOW = false;
+  const SHOW_VISUALS = false;
+  const SHOW_TRUST = false;
+  const SHOW_MERGE = false;
+  const SHOW_ENGINEERS = false;
   return (
-    <div className="app-container">
+    <>
+      {nav}
 
-      {/* ================= NAVBAR ================= */}
-<nav className="navbar navbar-animate">
-  <div className="nav-left">
-    <div className="icon logo-float">
-      <svg
-        width="32"
-        height="32"
-        viewBox="0 0 32 32"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-      >
-        <rect width="32" height="32" rx="8" fill="#4F46E5" />
-        <path
-          d="M10 22V10H13V22H10ZM16 10H22V13H19V22H16V10Z"
-          fill="white"
-        />
-      </svg>
+      <section className="hero">
+        <div className="hero-container">
+          <div className="hero-grid">
+            <div className="hero-left">
+              <p className="hero-eyebrow">
+                Trusted IIT-backed engineering network
+              </p>
+              <h1 className="hero-title">
+                Hire reliable IT professionals <br />
+                who focus on building, not pitching
+              </h1>
+              <p className="hero-subtitle">
+                Stackzy connects you with carefully evaluated engineers backed by
+                IIT experience. Clear communication, practical execution, and
+                long-term thinking, without the agency noise.
+              </p>
+              <div className="hero-actions">
+                <a
+                  href={
+                    "https://mail.google.com/mail/?view=cm&fs=1&to=contact@stackzy.io"
+                    + "&su=" + encodeURIComponent("Stackzy Hire Professionals")
+                    + "&body=" + encodeURIComponent(
+                      [
+                        "Hello Team Stackzy,",
+                        "",
+                        "I’d like to hire professionals for my project. Here are the details:",
+                        "",
+                        "• Company: ",
+                        "• Contact Name: ",
+                        "• Email / Phone: ",
+                        "",
+                        "Project Overview:",
+                        "- What we’re building: ",
+                        "- Goals/outcomes: ",
+                        "",
+                        "Key Technologies (if known): ",
+                        "Timeline:",
+                        "- Start date: ",
+                        "- Milestones: ",
+                        "- Target launch: ",
+                        "",
+                        "Budget Range:",
+                        "- Hourly or monthly preference: ",
+                        "- Range: ",
+                        "",
+                        "Collaboration:",
+                        "- Tools we use (Slack/Jira/GitHub): ",
+                        "- Timezone preferences: ",
+                        "",
+                        "Please share the next steps and suitable engineer profiles.",
+                        "",
+                        "Thanks."
+                      ].join("\n")
+                    )
+                  }
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="primary-btn"
+                >
+                  Hire professionals
+                </a>
+                <a
+                  href={
+                    "https://mail.google.com/mail/?view=cm&fs=1&to=contact@stackzy.io"
+                    + "&su=" + encodeURIComponent("Stackzy Discuss Needs")
+                    + "&body=" + encodeURIComponent(
+                      [
+                        "Hello Team Stackzy,",
+                        "",
+                        "I’d like to discuss my requirements and get recommendations.",
+                        "",
+                        "Context:",
+                        "- Current product / idea: ",
+                        "- Primary objectives: ",
+                        "",
+                        "Scope & Skills Needed (if known): ",
+                        "- Backend / Frontend / Full‑stack / DevOps / AI/ML: ",
+                        "",
+                        "Timeline & Budget:",
+                        "- Start date: ",
+                        "- Duration: ",
+                        "- Budget range: ",
+                        "",
+                        "Logistics:",
+                        "- Preferred communication tools: ",
+                        "- Timezone: ",
+                        "",
+                        "Please advise on next steps and share how we should approach this engagement.",
+                        "",
+                        "Thanks."
+                      ].join("\n")
+                    )
+                  }
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="secondary-btn"
+                >
+                  Discuss your needs
+                </a>
+              </div>
+            </div>
+            <div className="hero-right">
+              <HeroGraphic />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      
+
+      <div className="brand-bar">
+        <div className="brand-container">
+          <div className="brand-track">
+            <div className="brand-item">
+              <img src="/src/assets/logos/React.svg" alt="React" />
+              <span>React</span>
+            </div>
+            <div className="brand-item">
+              <img src="/src/assets/logos/Node.js.svg" alt="Node.js" />
+              <span>Node.js</span>
+            </div>
+            <div className="brand-item">
+              <img src="/src/assets/logos/Docker.svg" alt="Docker" />
+              <span>Docker</span>
+            </div>
+            <div className="brand-item">
+              <img src="/src/assets/logos/Kubernetes.svg" alt="Kubernetes" />
+              <span>Kubernetes</span>
+            </div>
+            <div className="brand-item">
+              <img src="/src/assets/logos/GitHub.svg" alt="GitHub" />
+              <span>GitHub</span>
+            </div>
+            <div className="brand-item">
+              <img src="/src/assets/logos/Vite.svg" alt="Vite" />
+              <span>Vite</span>
+            </div>
+            <div className="brand-item">
+              <img src="/src/assets/logos/Java.svg" alt="Java" />
+              <span>Java</span>
+            </div>
+            <div className="brand-item">
+              <img src="/src/assets/logos/HTML5.svg" alt="HTML5" />
+              <span>HTML5</span>
+            </div>
+            <div className="brand-item">
+              <img src="/src/assets/logos/CSS3.svg" alt="CSS3" />
+              <span>CSS3</span>
+            </div>
+            <div className="brand-item">
+              <img src="/src/assets/logos/Figma.svg" alt="Figma" />
+              <span>Figma</span>
+            </div>
+            <div className="brand-item">
+              <img src="/src/assets/logos/Firebase.svg" alt="Firebase" />
+              <span>Firebase</span>
+            </div>
+            {/* duplicate for seamless scroll */}
+            <div className="brand-item">
+              <img src="/src/assets/logos/React.svg" alt="React" />
+              <span>React</span>
+            </div>
+            <div className="brand-item">
+              <img src="/src/assets/logos/Node.js.svg" alt="Node.js" />
+              <span>Node.js</span>
+            </div>
+            <div className="brand-item">
+              <img src="/src/assets/logos/Docker.svg" alt="Docker" />
+              <span>Docker</span>
+            </div>
+            <div className="brand-item">
+              <img src="/src/assets/logos/Kubernetes.svg" alt="Kubernetes" />
+              <span>Kubernetes</span>
+            </div>
+            <div className="brand-item">
+              <img src="/src/assets/logos/GitHub.svg" alt="GitHub" />
+              <span>GitHub</span>
+            </div>
+            <div className="brand-item">
+              <img src="/src/assets/logos/Vite.svg" alt="Vite" />
+              <span>Vite</span>
+            </div>
+            <div className="brand-item">
+              <img src="/src/assets/logos/HTML5.svg" alt="HTML5" />
+              <span>HTML5</span>
+            </div>
+            <div className="brand-item">
+              <img src="/src/assets/logos/CSS3.svg" alt="CSS3" />
+              <span>CSS3</span>
+            </div>
+            <div className="brand-item">
+              <img src="/src/assets/logos/Figma.svg" alt="Figma" />
+              <span>Figma</span>
+            </div>
+            <div className="brand-item">
+              <img src="/src/assets/logos/Firebase.svg" alt="Firebase" />
+              <span>Firebase</span>
+            </div>
+          </div>
+          <div className="brand-track rev" style={{ marginTop: 18 }}>
+            <div className="brand-item">
+              <img src="/src/assets/logos/PostgresSQL.svg" alt="PostgreSQL" />
+              <span>PostgreSQL</span>
+            </div>
+            <div className="brand-item">
+              <img src="/src/assets/logos/Redis.svg" alt="Redis" />
+              <span>Redis</span>
+            </div>
+            <div className="brand-item">
+              <img src="/src/assets/logos/AWS.svg" alt="AWS" />
+              <span>AWS</span>
+            </div>
+            <div className="brand-item">
+              <img src="/src/assets/logos/Azure.svg" alt="Azure" />
+              <span>Azure</span>
+            </div>
+            <div className="brand-item">
+              <img src="/src/assets/logos/Go.svg" alt="Go" />
+              <span>Go</span>
+            </div>
+            <div className="brand-item">
+              <img src="/src/assets/logos/Rust.svg" alt="Rust" />
+              <span>Rust</span>
+            </div>
+            <div className="brand-item">
+              <img src="/src/assets/logos/MongoDB.svg" alt="MongoDB" />
+              <span>MongoDB</span>
+            </div>
+            <div className="brand-item">
+              <img src="/src/assets/logos/GraphQL.svg" alt="GraphQL" />
+              <span>GraphQL</span>
+            </div>
+            <div className="brand-item">
+              <img src="/src/assets/logos/HashiCorp-Terraform.svg" alt="Terraform" />
+              <span>Terraform</span>
+            </div>
+            <div className="brand-item">
+              <img src="/src/assets/logos/Google-Cloud.svg" alt="GCP" />
+              <span>GCP</span>
+            </div>
+            <div className="brand-item">
+              <img src="/src/assets/logos/Cloudflare.svg" alt="Cloudflare" />
+              <span>Cloudflare</span>
+            </div>
+            <div className="brand-item">
+              <img src="/src/assets/logos/Apache-Kafka.svg" alt="Kafka" />
+              <span>Kafka</span>
+            </div>
+            <div className="brand-item">
+              <img src="/src/assets/logos/Elastic-Search.svg" alt="Elasticsearch" />
+              <span>Elasticsearch</span>
+            </div>
+            <div className="brand-item">
+              <img src="/src/assets/logos/RabbitMQ.svg" alt="RabbitMQ" />
+              <span>RabbitMQ</span>
+            </div>
+            {/* duplicate for seamless scroll */}
+            <div className="brand-item">
+              <img src="/src/assets/logos/PostgresSQL.svg" alt="PostgreSQL" />
+              <span>PostgreSQL</span>
+            </div>
+            <div className="brand-item">
+              <img src="/src/assets/logos/Redis.svg" alt="Redis" />
+              <span>Redis</span>
+            </div>
+            <div className="brand-item">
+              <img src="/src/assets/logos/AWS.svg" alt="AWS" />
+              <span>AWS</span>
+            </div>
+            <div className="brand-item">
+              <img src="/src/assets/logos/Azure.svg" alt="Azure" />
+              <span>Azure</span>
+            </div>
+            <div className="brand-item">
+              <img src="/src/assets/logos/Go.svg" alt="Go" />
+              <span>Go</span>
+            </div>
+            <div className="brand-item">
+              <img src="/src/assets/logos/Rust.svg" alt="Rust" />
+              <span>Rust</span>
+            </div>
+            <div className="brand-item">
+              <img src="/src/assets/logos/MongoDB.svg" alt="MongoDB" />
+              <span>MongoDB</span>
+            </div>
+            <div className="brand-item">
+              <img src="/src/assets/logos/GraphQL.svg" alt="GraphQL" />
+              <span>GraphQL</span>
+            </div>
+            <div className="brand-item">
+              <img src="/src/assets/logos/HashiCorp-Terraform.svg" alt="Terraform" />
+              <span>Terraform</span>
+            </div>
+            <div className="brand-item">
+              <img src="/src/assets/logos/Google-Cloud.svg" alt="GCP" />
+              <span>GCP</span>
+            </div>
+            <div className="brand-item">
+              <img src="/src/assets/logos/Cloudflare.svg" alt="Cloudflare" />
+              <span>Cloudflare</span>
+            </div>
+            <div className="brand-item">
+              <img src="/src/assets/logos/Apache-Kafka.svg" alt="Kafka" />
+              <span>Kafka</span>
+            </div>
+            <div className="brand-item">
+              <img src="/src/assets/logos/Elastic-Search.svg" alt="Elasticsearch" />
+              <span>Elasticsearch</span>
+            </div>
+            <div className="brand-item">
+              <img src="/src/assets/logos/RabbitMQ.svg" alt="RabbitMQ" />
+              <span>RabbitMQ</span>
+            </div>
+          </div>
+          <div className="brand-track" style={{ marginTop: 18 }}>
+            <div className="brand-item">
+              <img src="/src/assets/logos/Swift.svg" alt="Swift" />
+              <span>Swift</span>
+            </div>
+            <div className="brand-item">
+              <img src="/src/assets/logos/Kotlin.svg" alt="Kotlin" />
+              <span>Kotlin</span>
+            </div>
+            <div className="brand-item">
+              <img src="/src/assets/logos/Flutter.svg" alt="Flutter" />
+              <span>Flutter</span>
+            </div>
+            <div className="brand-item">
+              <img src="/src/assets/logos/Azure.svg" alt="Azure" />
+              <span>Azure</span>
+            </div>
+            <div className="brand-item">
+              <img src="/src/assets/logos/Nginx.svg" alt="Nginx" />
+              <span>Nginx</span>
+            </div>
+            <div className="brand-item">
+              <img src="/src/assets/logos/Svelte.svg" alt="Svelte" />
+              <span>Svelte</span>
+            </div>
+            <div className="brand-item">
+              <img src="/src/assets/logos/Django.svg" alt="Django" />
+              <span>Django</span>
+            </div>
+            <div className="brand-item">
+              <img src="/src/assets/logos/Laravel.svg" alt="Laravel" />
+              <span>Laravel</span>
+            </div>
+            <div className="brand-item">
+              <img src="/src/assets/logos/CSS3.svg" alt="CSS3" />
+              <span>CSS3</span>
+            </div>
+            <div className="brand-item">
+              <img src="/src/assets/logos/Figma.svg" alt="Figma" />
+              <span>Figma</span>
+            </div>
+            <div className="brand-item">
+              <img src="/src/assets/logos/Firebase.svg" alt="Firebase" />
+              <span>Firebase</span>
+            </div>
+            <div className="brand-item">
+              <img src="/src/assets/logos/Go.svg" alt="Go" />
+              <span>Go</span>
+            </div>
+            <div className="brand-item">
+              <img src="/src/assets/logos/Rust.svg" alt="Rust" />
+              <span>Rust</span>
+            </div>
+            <div className="brand-item">
+              <img src="/src/assets/logos/MongoDB.svg" alt="MongoDB" />
+              <span>MongoDB</span>
+            </div>
+            <div className="brand-item">
+              <img src="/src/assets/logos/GraphQL.svg" alt="GraphQL" />
+              <span>GraphQL</span>
+            </div>
+            <div className="brand-item">
+              <img src="/src/assets/logos/HashiCorp-Terraform.svg" alt="Terraform" />
+              <span>Terraform</span>
+            </div>
+            <div className="brand-item">
+              <img src="/src/assets/logos/Google-Cloud.svg" alt="GCP" />
+              <span>GCP</span>
+            </div>
+            <div className="brand-item">
+              <img src="/src/assets/logos/Cloudflare.svg" alt="Cloudflare" />
+              <span>Cloudflare</span>
+            </div>
+            <div className="brand-item">
+              <img src="/src/assets/logos/Apache-Kafka.svg" alt="Kafka" />
+              <span>Kafka</span>
+            </div>
+            <div className="brand-item">
+              <img src="/src/assets/logos/Elastic-Search.svg" alt="Elasticsearch" />
+              <span>Elasticsearch</span>
+            </div>
+            <div className="brand-item">
+              <img src="/src/assets/logos/RabbitMQ.svg" alt="RabbitMQ" />
+              <span>RabbitMQ</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+{/* HOW IT WORKS */}
+<section className="how-it-works">
+  <AnimateOnScroll>
+  <div className="how-container" ref={howRef}>
+    <h2 className="section-title">How Stackzy works</h2>
+    <p className="section-subtitle">A simple process designed to save time and avoid mismatches.</p>
+    <div className="steps">
+      <div className="step">
+        <span className="step-number">01</span>
+        <h3>Share your requirement</h3>
+        <p>Tell us what you’re building and the skills you need.</p>
+      </div>
+      <div className="step">
+        <span className="step-number">02</span>
+        <h3>Get matched with engineers</h3>
+        <p>We shortlist engineers whose strengths align with your problem.</p>
+      </div>
+      <div className="step">
+        <span className="step-number">03</span>
+        <h3>Start building</h3>
+        <p>Work directly with the engineer. No intermediaries.</p>
+      </div>
     </div>
-
-    <span className="logo-text logo-glow">ITportal</span>
   </div>
+  </AnimateOnScroll>
+</section>
 
-  <div className="nav-right">
-    <a href="#services" className="nav-link">
-      <span>Services</span>
-    </a>
-    <a href="#pricing" className="nav-link">
-      <span>Pricing</span>
-    </a>
-    <a href="#how-it-works" className="nav-link">
-      <span>How It Works</span>
-    </a>
+{/* WORKFLOW */}
+      {SHOW_WORKFLOW && <Workflow />}
+      <AnimateOnScroll>
+  <TechDeepDives />
+</AnimateOnScroll>
 
-    <a href={`https://mail.google.com/mail/?view=cm&fs=1&to=prakhargar@iitbhilai.ac.in&su=${encodeURIComponent(
-        "ITportal — Request Expert IT Team"
-      )}&body=${encodeURIComponent(
-        "Hello,\n\nI’m interested in hiring IT professionals through ITportal.\nPlease contact me to discuss my requirements.\n\nRegards,"
-      )}`} className="nav-cta nav-cta-animate">
-      Contact
-    </a>
+{/* WHO YOU CAN HIRE */}
+<section id="talents" className="hire-section">
+  <AnimateOnScroll>
+  <div className="hire-container">
+    <div className="hire-header">
+      <h2 className="section-title">Who you can hire</h2>
+      <p className="section-subtitle">
+        Engineers selected for depth, clarity of thinking, and ability to execute.
+      </p>
+    </div>
+    <div className="hire-table-wrap">
+      <table className="hire-table">
+        <thead>
+          <tr>
+            <th>Role</th>
+            <th>What they do</th>
+            <th>Typical Rate</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><a href="#hire/backend" style={{color: 'inherit', textDecoration: 'none'}}>Backend engineers</a></td>
+            <td>System design, APIs, databases, and scalable architectures.</td>
+            <td>$29/hr</td>
+          </tr>
+          <tr>
+            <td><a href="#hire/fullstack" style={{color: 'inherit', textDecoration: 'none'}}>Full‑stack engineers</a></td>
+            <td>Frontend + backend with strong product usability focus.</td>
+            <td>$24/hr</td>
+          </tr>
+          <tr>
+            <td><a href="#hire/ai-ml" style={{color: 'inherit', textDecoration: 'none'}}>AI & ML engineers</a></td>
+            <td>Data pipelines, model development, and applied machine learning.</td>
+            <td>$31/hr</td>
+          </tr>
+          <tr>
+            <td><a href="#hire/blockchain" style={{color: 'inherit', textDecoration: 'none'}}>Blockchain engineers</a></td>
+            <td>Smart contracts, protocols, and security-focused development.</td>
+            <td>$39/hr</td>
+          </tr>
+          <tr>
+            <td><a href="#hire/cloud-devops" style={{color: 'inherit', textDecoration: 'none'}}>Cloud & DevOps</a></td>
+            <td>CI/CD, Kubernetes, observability, and infra automation.</td>
+            <td>$43/hr</td>
+          </tr>
+          <tr>
+            <td><a href="#hire/cybersecurity" style={{color: 'inherit', textDecoration: 'none'}}>Cybersecurity</a></td>
+            <td>Threat modeling, audits, secure coding, incident response.</td>
+            <td>$37/hr</td>
+          </tr>
+          <tr>
+            <td><a href="#hire/ui-ux" style={{color: 'inherit', textDecoration: 'none'}}>UI/UX</a></td>
+            <td>User research, interaction design, prototyping, design systems.</td>
+            <td>$14/hr</td>
+          </tr>
+          <tr>
+            <td><a href="#hire/data" style={{color: 'inherit', textDecoration: 'none'}}>Data engineers & analysts</a></td>
+            <td>ETL, warehousing, analytics, dashboards, and reliable data ops.</td>
+            <td>$22/hr</td>
+          </tr>
+          <tr>
+            <td><a href="#hire/innovation" style={{color: 'inherit', textDecoration: 'none'}}>Innovation & R&D</a></td>
+            <td>Exploration, prototypes, feasibility, and technical spikes.</td>
+            <td>$33/hr</td>
+          </tr>
+          <tr>
+            <td><a href="#hire/qa-testing" style={{color: 'inherit', textDecoration: 'none'}}>QA & Testing</a></td>
+            <td>Automated tests, CI integration, resilient release practices.</td>
+            <td>$18/hr</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </div>
-</nav>
+  </AnimateOnScroll>
+</section>
 
-     {/* ================= HERO SECTION ================= */}
-<section className="hero-section">
-  {/* Background SVG Layers */}
-  <svg
-    className="hero-bg"
-    width="100%"
-    height="100%"
-    viewBox="0 0 480 360"
-    fill="none"
-    xmlns="http://www.w3.org/2000/svg"
-  >
-    <defs>
-      <radialGradient id="bgRad1" cx="0.3" cy="0.3" r="0.6">
-        <stop offset="0%" stopColor="#4F46E5" stopOpacity="0.15"/>
-        <stop offset="100%" stopColor="#4F46E5" stopOpacity="0"/>
-      </radialGradient>
-      <radialGradient id="bgRad2" cx="0.7" cy="0.6" r="0.5">
-        <stop offset="0%" stopColor="#22D3EE" stopOpacity="0.12"/>
-        <stop offset="100%" stopColor="#22D3EE" stopOpacity="0"/>
-      </radialGradient>
-      <radialGradient id="bgRad3" cx="0.5" cy="0.8" r="0.7">
-        <stop offset="0%" stopColor="#FBBF24" stopOpacity="0.08"/>
-        <stop offset="100%" stopColor="#FBBF24" stopOpacity="0"/>
-      </radialGradient>
-    </defs>
-    <rect width="480" height="360" fill="url(#bgRad1)" />
-    <rect width="480" height="360" fill="url(#bgRad2)" />
-    <rect width="480" height="360" fill="url(#bgRad3)" />
-  </svg>
+{/* WHY STACKZY */}
+<section className="why">
+  <AnimateOnScroll>
+  <div className="why-container">
+    <h2 className="section-title">Why Stackzy</h2>
+    <p className="section-subtitle">
+      Built for teams that value clear thinking and long-term outcomes.
+    </p>
 
-  <div className="hero-content">
-    <h1>
-      Hire <span>IIT-Backed</span> IT Professionals <br />
-      On Demand
-    </h1>
-    <p style={{ fontSize: "1.05rem", color: "#374151", lineHeight: "1.7" }}>
-  Build faster with{" "}
-  <span style={{ fontWeight: 600, color: "#111827" }}>
-    pre-vetted engineers
-  </span>{" "}
-  or{" "}
-  <span style={{ fontWeight: 600, color: "#111827" }}>
-    full-stack IT teams
-  </span>
-  , strategically{" "}
-  <span style={{ fontWeight: 600, color: "#111827" }}>
-    guided by IIT experts
-  </span>{" "}
-  at every stage.
-</p>
+    <div className="why-track">
+      <div className="why-item">
+        <h3>Engineer-first network</h3>
+        <p>
+          We work directly with engineers. No account managers, no layers that
+          dilute communication.
+        </p>
+      </div>
 
+      <div className="why-item">
+        <h3>IIT-backed evaluation</h3>
+        <p>
+          Every engineer is reviewed for fundamentals, problem-solving ability,
+          and real-world judgment.
+        </p>
+      </div>
 
-    <div
-  className="hero-actions"
-  style={{
-    display: "flex",
-    gap: "1rem",
-    alignItems: "center"
-  }}
->
-  <a
-    href={`https://mail.google.com/mail/?view=cm&fs=1&to=prakhargar@iitbhilai.ac.in&su=${encodeURIComponent(
-        "ITportal — Request Expert IT Team"
-      )}&body=${encodeURIComponent(
-        "Hello,\n\nI’m interested in hiring IT professionals through ITportal.\nPlease contact me to discuss my requirements.\n\nRegards,"
-      )}`}
-    className="primary-btn"
-    style={{
-      fontSize: "16px",
-      padding: "14px 28px",
-      lineHeight: "1",
-      transform: "none",
-      scale: "1",
-      maxWidth: "fit-content",
-      whiteSpace: "nowrap"
-    }}
-  >
-    Start Free Trial
-  </a>
+      <div className="why-item">
+        <h3>Low noise, high signal</h3>
+        <p>
+          No inflated profiles or artificial urgency. Just people who can build
+          what you actually need.
+        </p>
+      </div>
 
-  <a
-    href="#how-it-works"
-    className="secondary-btn"
-    style={{
-      fontSize: "16px",
-      padding: "14px 28px",
-      lineHeight: "1",
-      transform: "none",
-      scale: "1",
-      maxWidth: "fit-content",
-      whiteSpace: "nowrap"
-    }}
-  >
-    How It Works
-  </a>
-</div>
-
-
-    <p style={{ fontSize: "0.95rem", color: "#166534", fontWeight: 500 }}>
-  3–5 day <span style={{ fontWeight: 600 }}>no-commitment trial</span> ·{" "}
-  <span style={{ fontWeight: 600 }}>Scale or exit</span> anytime
-</p>
-
+      <div className="why-item">
+        <h3>Long-term alignment</h3>
+        <p>
+          Optimized for continuity and ownership, not short-term project churn.
+        </p>
+      </div>
+      <div className="why-item">
+        <h3>Engineer-first network</h3>
+        <p>
+          We work directly with engineers. No account managers, no layers that
+          dilute communication.
+        </p>
+      </div>
+      <div className="why-item">
+        <h3>IIT-backed evaluation</h3>
+        <p>
+          Every engineer is reviewed for fundamentals, problem-solving ability,
+          and real-world judgment.
+        </p>
+      </div>
+      <div className="why-item">
+        <h3>Low noise, high signal</h3>
+        <p>
+          No inflated profiles or artificial urgency. Just people who can build
+          what you actually need.
+        </p>
+      </div>
+      <div className="why-item">
+        <h3>Long-term alignment</h3>
+        <p>
+          Optimized for continuity and ownership, not short-term project churn.
+        </p>
+      </div>
+    </div>
   </div>
+  </AnimateOnScroll>
+</section>
 
-  {/* Dashboard / Team Visual */}
-  <div className="hero-visual">
-    <svg
-      width="480"
-      height="360"
-      viewBox="0 0 480 360"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+{/* PRICING */}
+<PricingPage />
+
+{SHOW_VISUALS && (
+<section className="visuals">
+  <AnimateOnScroll>
+  <div className="how-container">
+    <h2 className="section-title">Internet-scale mindset</h2>
+    <p className="section-subtitle">
+      Reliable systems, clear architecture, and maintainable code.
+    </p>
+    <div className="talent-grid">
+      <AnimateOnScroll>
+        <a href="#mindset/global-network" style={{ color: 'inherit', textDecoration: 'none' }}>
+        <div className="talent-card">
+          <h3>
+            <svg className="card-icon" viewBox="0 0 24 24">
+              <circle cx="12" cy="12" r="7" stroke="var(--brown)" strokeWidth="2" fill="none" />
+              <path d="M5 12h14M12 5v14" stroke="var(--rust)" strokeWidth="2" />
+            </svg>
+            Global network
+          </h3>
+          <p>Topology-aware designs and practical scaling patterns.</p>
+        </div>
+        </a>
+      </AnimateOnScroll>
+      <AnimateOnScroll>
+        <a href="#mindset/robust-code" style={{ color: 'inherit', textDecoration: 'none' }}>
+        <div className="talent-card">
+          <h3>
+            <svg className="card-icon" viewBox="0 0 24 24">
+              <path d="M4 5h16v8H4z" fill="var(--olive)" />
+              <path d="M8 17h8" stroke="var(--amber)" strokeWidth="2" />
+            </svg>
+            Robust code
+          </h3>
+          <p>Error handling and boundaries that keep systems healthy.</p>
+        </div>
+        </a>
+      </AnimateOnScroll>
+    </div>
+  </div>
+  </AnimateOnScroll>
+</section>
+)}
+
+{SHOW_TRUST && (
+<section className="trust">
+  <AnimateOnScroll>
+  <div className="trust-container">
+    <h2 className="section-title">Built on trust, not volume</h2>
+    <p className="section-subtitle">
+      StackyFi is shaped by academic rigor and real-world engineering practice.
+    </p>
+
+    <div className="trust-points">
+      <AnimateOnScroll>
+        <a href="#trust/evaluation" style={{ color: 'inherit', textDecoration: 'none' }}>
+        <div className="trust-point">
+          <h3>
+            <svg className="card-icon" viewBox="0 0 24 24">
+              <path d="M12 3l7 7-7 7-7-7 7-7z" fill="var(--amber)" />
+            </svg>
+            IIT-linked evaluation mindset
+          </h3>
+          <p>
+            Our screening focuses on fundamentals, reasoning, and decision-making —
+            not just tools or buzzwords.
+          </p>
+        </div>
+        </a>
+      </AnimateOnScroll>
+
+      <AnimateOnScroll>
+        <a href="#trust/selective" style={{ color: 'inherit', textDecoration: 'none' }}>
+        <div className="trust-point">
+          <h3>
+            <svg className="card-icon" viewBox="0 0 24 24">
+              <path d="M5 5h14v10H5z" stroke="var(--rust)" strokeWidth="2" fill="none" />
+              <path d="M7 19h10" stroke="var(--rust)" strokeWidth="2" />
+            </svg>
+            Selective by design
+          </h3>
+          <p>
+            We prioritize fit and depth over scale. This keeps quality consistent
+            and relationships sustainable.
+          </p>
+        </div>
+        </a>
+      </AnimateOnScroll>
+
+      <AnimateOnScroll>
+        <a href="#trust/direct-collab" style={{ color: 'inherit', textDecoration: 'none' }}>
+        <div className="trust-point">
+          <h3>
+            <svg className="card-icon" viewBox="0 0 24 24">
+              <path d="M8 8h8v8H8z" fill="var(--olive)" />
+              <path d="M4 12h16" stroke="var(--brown)" strokeWidth="2" />
+            </svg>
+            Direct collaboration
+          </h3>
+          <p>
+            You work directly with the engineer doing the work. No hidden layers,
+            no communication gaps.
+          </p>
+        </div>
+        </a>
+      </AnimateOnScroll>
+    </div>
+  </div>
+  </AnimateOnScroll>
+</section>
+)}
+
+{/* ENGINEERS */}
+{SHOW_ENGINEERS && (
+<section className="engineers">
+  <div className="engineers-container">
+    <h2 className="section-title">Engineers you’ll meet</h2>
+    <p className="section-subtitle">
+      Faces and qualifications that reflect substance, not flash.
+    </p>
+    <div className="engineers-grid"></div>
+  </div>
+  </section>
+)}
+
+{/* MERGE ANIMATION */}
+{SHOW_MERGE && (
+<section className="merge">
+  <div className="merge-container">
+    <h2 className="section-title">Different aspects, one quality solution</h2>
+    <p className="section-subtitle">
+      Speed, reliability, security, UX — merged with clear engineering.
+    </p>
+    <svg className="merge-svg" viewBox="0 0 500 300" xmlns="http://www.w3.org/2000/svg">
       <defs>
-        <linearGradient id="cardGrad" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stopColor="#4F46E5"/>
-          <stop offset="100%" stopColor="#6366F1"/>
-        </linearGradient>
-
-        <linearGradient id="nodeGrad1" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stopColor="#4ADE80"/>
-          <stop offset="100%" stopColor="#22D3EE"/>
-        </linearGradient>
-
-        <linearGradient id="nodeGrad2" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stopColor="#FBBF24"/>
-          <stop offset="100%" stopColor="#F43F5E"/>
-        </linearGradient>
-
-        <linearGradient id="connectionGrad" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stopColor="#4F46E5" stopOpacity="0.6"/>
-          <stop offset="100%" stopColor="#22D3EE" stopOpacity="0.6"/>
-        </linearGradient>
+        <filter id="glow">
+          <feGaussianBlur stdDeviation="3.5" result="coloredBlur"/>
+          <feMerge>
+            <feMergeNode in="coloredBlur"/>
+            <feMergeNode in="SourceGraphic"/>
+          </feMerge>
+        </filter>
       </defs>
-
-      {/* Dashboard Card */}
-      <rect x="70" y="60" width="340" height="220" rx="18" fill="white" stroke="#E0E7FF" strokeWidth="2"/>
-
-      {/* Header Bars */}
-      <rect x="95" y="85" width="140" height="16" rx="8" fill="#4F46E5"/>
-      <rect x="250" y="88" width="90" height="10" rx="5" fill="#C7D2FE"/>
-
-      {/* Status Pills */}
-      <rect x="95" y="120" width="90" height="12" rx="6" fill="#A5B4FC"/>
-      <rect x="195" y="120" width="70" height="12" rx="6" fill="#818CF8"/>
-      <rect x="275" y="120" width="80" height="12" rx="6" fill="#C084FC"/>
-
-      {/* Team Nodes */}
-      <circle className="node node1" cx="135" cy="175" r="18" fill="url(#nodeGrad1)"/>
-      <circle className="node node2" cx="210" cy="175" r="18" fill="url(#nodeGrad2)"/>
-      <circle className="node node3" cx="285" cy="175" r="18" fill="url(#nodeGrad1)"/>
-      <circle className="node node4" cx="175" cy="215" r="18" fill="url(#nodeGrad2)"/>
-      <circle className="node node5" cx="250" cy="215" r="18" fill="url(#nodeGrad1)"/>
-
-      {/* Connections */}
-      <line x1="135" y1="175" x2="210" y2="175" stroke="url(#connectionGrad)" strokeWidth="2"/>
-      <line x1="210" y1="175" x2="285" y2="175" stroke="url(#connectionGrad)" strokeWidth="2"/>
-      <line x1="175" y1="215" x2="210" y2="175" stroke="url(#connectionGrad)" strokeWidth="2"/>
-      <line x1="250" y1="215" x2="210" y2="175" stroke="url(#connectionGrad)" strokeWidth="2"/>
-
-      {/* Monitoring Panel */}
-      <rect x="310" y="170" width="70" height="50" rx="10" fill="url(#cardGrad)"/>
-      <polyline
-        points="320,200 330,190 345,205 360,185"
-        fill="none"
-        stroke="white"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-
-      {/* Footer Progress */}
-      <rect x="95" y="250" width="210" height="10" rx="5" fill="#E0E7FF"/>
-      <rect x="95" y="250" width="140" height="10" rx="5" fill="#4F46E5"/>
+      <g>
+        <circle className="bubble" cx="90" cy="80" r="22" fill="#10a37f" filter="url(#glow)"/>
+        <text x="90" y="84" fontSize="10" textAnchor="middle" fill="#083344">Speed</text>
+      </g>
+      <g>
+        <circle className="bubble" cx="120" cy="210" r="22" fill="#e6a43a" filter="url(#glow)"/>
+        <text x="120" y="214" fontSize="10" textAnchor="middle" fill="#3b260f">UX</text>
+      </g>
+      <g>
+        <circle className="bubble" cx="420" cy="80" r="22" fill="#566529" filter="url(#glow)"/>
+        <text x="420" y="84" fontSize="10" textAnchor="middle" fill="#101510">Reliability</text>
+      </g>
+      <g>
+        <circle className="bubble" cx="380" cy="220" r="22" fill="#c84a1b" filter="url(#glow)"/>
+        <text x="380" y="224" fontSize="10" textAnchor="middle" fill="#2a0d05">Security</text>
+      </g>
+      <circle cx="250" cy="150" r="56" fill="#0f1115" stroke="#10a37f" strokeWidth="2"/>
+      <text x="250" y="155" fontSize="12" textAnchor="middle" fill="#e6edf3">Quality</text>
     </svg>
   </div>
 </section>
+)}
 
-
-
-      {/* ================= TRUST BAR ================= */}
-      {/* ================= TECH LOGO MARQUEE ================= */}
-<section className="tech-marquee">
-  <div className="marquee-track">
-    <div className="marquee-group">
-      <img src="src/assets/logos/React.svg" alt="React" title="React" />
-      <img src="src/assets/logos/Node.js.svg" alt="Node.js" title="Node.js" />
-      <img src="src/assets/logos/MongoDB.svg" alt="MongoDB" title="MongoDB" />
-      <img src="src/assets/logos/AWS.svg" alt="AWS" title="AWS" />
-      <img src="src/assets/logos/Python.svg" alt="Python" title="Python" />
-      <img src="src/assets/logos/Java.svg" alt="Java" title="Java" />
-      <img src="src/assets/logos/Django.svg" alt="Django" title="Django" />
-      <img src="src/assets/logos/Angular.svg" alt="Angular" title="Angular" />
-      <img src="src/assets/logos/TypeScript.svg" alt="TypeScript" title="TypeScript" />
-      <img src="src/assets/logos/Kubernetes.svg" alt="Kubernetes" title="Kubernetes" />
-      <img src="src/assets/logos/Docker.svg" alt="Docker" title="Docker" />
-      <img src="src/assets/logos/GraphQL.svg" alt="GraphQL" title="GraphQL" />
-      <img src="src/assets/logos/HTML5.svg" alt="HTML5" title="HTML5" />
-      <img src="src/assets/logos/CSS3.svg" alt="CSS3" title="CSS3" />
-      <img src="src/assets/logos/Flutter.svg" alt="Flutter" title="Flutter" />
-      <img src="src/assets/logos/Ruby.svg" alt="Ruby" title="Ruby" />
-      <img src="src/assets/logos/Swift.svg" alt="Swift" title="Swift" />
-      <img src="src/assets/logos/PostgresSQL.svg" alt="PostgreSQL" title="PostgresSQL" />
-      <img src="src/assets/logos/Redis.svg" alt="Redis" title="Redis" />
-      <img src="src/assets/logos/Next.js.svg" alt="Next.js" title="Next.js" />
-
-      {/* Repeat logos for seamless infinite scrolling */}
-      <img src="src/assets/logos/React.svg" alt="React" title="React" />
-      <img src="src/assets/logos/Node.js.svg" alt="Node.js" title="Node.js" />
-      <img src="src/assets/logos/MongoDB.svg" alt="MongoDB" title="MongoDB" />
-      <img src="src/assets/logos/AWS.svg" alt="AWS" title="AWS" />
-      <img src="src/assets/logos/Python.svg" alt="Python" title="Python" />
-      <img src="src/assets/logos/Java.svg" alt="Java" title="Java" />
-      <img src="src/assets/logos/Django.svg" alt="Django" title="Django" />
-      <img src="src/assets/logos/Angular.svg" alt="Angular" title="Angular" />
-      <img src="src/assets/logos/TypeScript.svg" alt="TypeScript" title="TypeScript" />
-      <img src="src/assets/logos/Kubernetes.svg" alt="Kubernetes" title="Kubernetes" />
-      <img src="src/assets/logos/Docker.svg" alt="Docker" title="Docker" />
-      <img src="src/assets/logos/GraphQL.svg" alt="GraphQL" title="GraphQL" />
-      <img src="src/assets/logos/HTML5.svg" alt="HTML5" title="HTML5" />
-      <img src="src/assets/logos/CSS3.svg" alt="CSS3" title="CSS3" />
-      <img src="src/assets/logos/Flutter.svg" alt="Flutter" title="Flutter" />
-      <img src="src/assets/logos/Ruby.svg" alt="Ruby" title="Ruby" />
-      <img src="src/assets/logos/Swift.svg" alt="Swift" title="Swift" />
-      <img src="src/assets/logos/PostgresSQL.svg" alt="PostgreSQL" title="PostgresSQL" />
-      <img src="src/assets/logos/Redis.svg" alt="Redis" title="Redis" />
-      <img src="src/assets/logos/Next.js.svg" alt="Next.js" title="Next.js" />
-    </div>
-  </div>
-</section>
-
-      {/* ================= SERVICES ================= */}
-
-   <section className="services-section" id="services">
-  {/* Glowing Premium Scenery SVG */}
-  <svg className="services-bg" viewBox="0 0 1000 600" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
-    <defs>
-      <linearGradient id="glowGrad1" x1="0%" y1="0%" x2="100%" y2="100%">
-        <stop offset="0%" stopColor="#4F46E5" stopOpacity="0.3"/>
-        <stop offset="50%" stopColor="#6366F1" stopOpacity="0.2"/>
-        <stop offset="100%" stopColor="#22D3EE" stopOpacity="0.25"/>
-      </linearGradient>
-      <filter id="blurFilter" x="-50%" y="-50%" width="200%" height="200%">
-        <feGaussianBlur in="SourceGraphic" stdDeviation="60" />
-      </filter>
-    </defs>
-    {/* Animated Soft Curves */}
-    <path d="M0 300 C300 150 700 450 1000 300 L1000 600 L0 600 Z" fill="url(#glowGrad1)" filter="url(#blurFilter)" className="curve1"/>
-    <path d="M0 400 C400 200 600 500 1000 400 L1000 600 L0 600 Z" fill="url(#glowGrad1)" filter="url(#blurFilter)" className="curve2"/>
-  </svg>
-
-  <div className="services-content">
-    <h2 className="reveal-on-scroll">What You Can Hire</h2>  
-
-    <div className="services-grid">
-
-      {/* Service 1 */}
-      <div className="service-card reveal-on-scroll">
-        <div className="service-icon">
-          🌐
-        </div>
-        <h3>Web & App Development</h3>
-        <p>MERN, React, Node, Mobile Apps</p>
-      </div>
-
-      {/* Service 2 */}
-      <div className="service-card reveal-on-scroll">
-        <div className="service-icon">
-          🤖
-        </div>
-        <h3>AI / ML & Data</h3>
-        <p>Model development, analytics, automation</p>
-      </div>
-
-      {/* Service 3 */}
-      <div className="service-card reveal-on-scroll">
-        <div className="service-icon">
-          ⛓️
-        </div>
-        <h3>Blockchain & Web3</h3>
-        <p>Smart contracts, dApps, audits</p>
-      </div>
-
-      {/* Service 4 */}
-      <div className="service-card reveal-on-scroll">
-        <div className="service-icon">
-          ☁️
-        </div>
-        <h3>Cloud & DevOps</h3>
-        <p>AWS, CI/CD, scalable infrastructure</p>
-      </div>
-
-      {/* Service 5 */}
-      <div className="service-card reveal-on-scroll">
-        <div className="service-icon">
-          🔒
-        </div>
-        <h3>Cybersecurity</h3>
-        <p>Audits, secure systems, compliance</p>
-      </div>
-
-      {/* Service 6 */}
-      <div className="service-card reveal-on-scroll">
-        <div className="service-icon">
-          🎨
-        </div>
-        <h3>UI / UX & Product</h3>
-        <p>Design systems, user research, creative solutions</p>
-      </div>
-
-      {/* Service 7 - New Profession */}
-      <div className="service-card reveal-on-scroll">
-        <div className="service-icon">
-          📊
-        </div>
-        <h3>Data Engineering & Analytics</h3>
-        <p>Data pipelines, visualization, insights</p>
-      </div>
-            {/* Service 8 */}
-      <div className="service-card reveal-on-scroll">
-        <div className="service-icon">
-          💡
-        </div>
-        <h3>Innovation & R&D</h3>
-        <p>Advanced prototypes, research-driven solutions, creative problem solving</p>
-      </div>
-
-
-    </div>
-  </div>
-</section>
-
-
-     {/* ================= HOW IT WORKS ================= */}
-<section className="how-it-works" id="how-it-works">
-  {/* Background Premium SVG */}
-  <svg className="how-bg-svg" viewBox="0 0 1200 600" preserveAspectRatio="xMidYMid slice">
-    <path className="bg-shape" d="M0,300 C300,100 900,500 1200,300 L1200,600 L0,600 Z" fill="#E0E7FF"/>
-    <path className="bg-shape" d="M0,400 C400,200 800,600 1200,400 L1200,600 L0,600 Z" fill="#C7D2FE"/>
-  </svg>
-
-  <div className="how-header reveal-on-scroll">
-    <h2>How ITportal Works</h2>
-    <p className="how-subtext">A simple 4-step journey to hire IIT-backed IT talent safely.</p>
-  </div>
-
-  <div className="steps-container">
-    {/* Step 1 */}
-    <div className="step-card reveal-on-scroll">
-      <div className="step-icon">
-        <svg width="36" height="36" fill="none" stroke="#4F46E5" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <rect x="3" y="4" width="30" height="28" rx="4" />
-          <line x1="9" y1="10" x2="27" y2="10" />
-          <line x1="9" y1="16" x2="27" y2="16" />
-        </svg>
-      </div>
-      <span className="step-number">01</span>
-      <h3>Share Requirements</h3>
-      <p>Tell us exactly what you need, the role, skills, and duration.</p>
-    </div>
-
-    {/* Step 2 */}
-    <div className="step-card reveal-on-scroll">
-      <div className="step-icon">
-        <svg width="36" height="36" fill="none" stroke="#22D3EE" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <circle cx="10" cy="18" r="6" />
-          <circle cx="26" cy="18" r="6" />
-        </svg>
-      </div>
-      <span className="step-number">02</span>
-      <h3>Expert Assignment</h3>
-      <p>We assign the IIT-backed expert who perfectly fits your project needs.</p>
-    </div>
-
-    {/* Step 3 */}
-    <div className="step-card reveal-on-scroll">
-      <div className="step-icon">
-        <svg width="36" height="36" fill="none" stroke="#FBBF24" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <polygon points="6 3 30 18 6 33 6 3" />
-        </svg>
-      </div>
-      <span className="step-number">03</span>
-      <h3>Start Free Trial</h3>
-      <p>Experience 3–5 days risk-free work and see the expertise in action.</p>
-    </div>
-
-    {/* Step 4 */}
-    <div className="step-card reveal-on-scroll">
-      <div className="step-icon">
-        <svg width="36" height="36" fill="none" stroke="#4ADE80" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M3 33h30" />
-          <path d="M9 25l9-9 9 9" />
-        </svg>
-      </div>
-      <span className="step-number">04</span>
-      <h3>Scale or Replace</h3>
-      <p>Expand your team or replace talent easily, keeping full control.</p>
-    </div>
-  </div>
-</section>
-
-
-      {/* ================= PRICING ================= */}
-<section className="pricing-section" id="pricing">
-
-  {/* Background glow */}
-  <div className="pricing-bg-glow"></div>
-
-  <div className="pricing-header reveal">
-    <h2>
-      Simple, <span>Transparent</span> Pricing
-    </h2>
-    <p className="pricing-subtext">
-      Start small. Scale anytime. Pricing varies by expertise level.
-    </p>
-  </div>
-
-  <div className="pricing-grid">
-
-    {/* GENERAL */}
-    <div className="pricing-card reveal">
-      <h3>General</h3>
-
-      <div className="price-wrap">
-        <span className="price">$26</span>
-        <span className="price-unit">/ hour</span>
-      </div>
-
-      <p className="price-alt">for monthly commitment $840/month</p>
-
-      <ul className="pricing-features">
-  <li>✔ IIT-backed support for everyday technological needs</li>
-  <li>✔ Web development with modern stacks</li>
-  <li>✔ Mobile app development and maintenance</li>
-  <li>✔ API integration and database management</li>
-  <li>✔ Bug fixing, performance optimization, and troubleshooting</li>
-  <li>✔ Routine software updates and enhancements</li>
-  <li>✔ Scalable solutions for small to medium projects</li>
-  <li>✔ Flexible team allocation with replacement options</li>
-  <li>✔ Clear documentation and code quality assurance</li>
-</ul>
-
-      <a href={`https://mail.google.com/mail/?view=cm&fs=1&to=prakhargar@iitbhilai.ac.in&su=${encodeURIComponent(
-        "ITportal — Request Expert IT Team"
-      )}&body=${encodeURIComponent(
-        "Hello,\n\nI’m interested in hiring IT professionals through ITportal.\nPlease contact me to discuss my requirements.\n\nRegards,"
-      )}`} className="primary-btn">
-        Start Trial
-      </a>
-    </div>
-
-    {/* ADVANCED */}
-    <div className="pricing-card featured reveal">
-      <div className="badge">Most Popular</div>
-
-      <h3>Advanced</h3>
-
-      <div className="price-wrap">
-        <span className="price">$41</span>
-        <span className="price-unit">/ hour</span>
-      </div>
-
-      <p className="price-alt">for monthly commitment $1610/month</p>
-
-      <ul className="pricing-features">
-  <li>✔ Dedicated IIT expert for high-complexity projects</li>
-  <li>✔ Cutting-edge development for Web3</li>
-  <li>✔ Custom architecture design and system optimization</li>
-  <li>✔ Creative problem-solving for unique technical challenges</li>
-  <li>✔ Advanced database structuring and cloud-native solutions</li>
-  <li>✔ End-to-end innovation-driven project execution</li>
-  <li>✔ Real-time debugging, performance tuning, and scaling</li>
-  <li>✔ Integration of latest frameworks and technologies</li>
-  <li>✔ High-quality code with maintainable architecture</li>
-  <li>✔ Seamless collaboration and proactive technical guidance</li>
-</ul>
-
-      <a href={`https://mail.google.com/mail/?view=cm&fs=1&to=prakhargar@iitbhilai.ac.in&su=${encodeURIComponent(
-        "ITportal — Request Expert IT Team"
-      )}&body=${encodeURIComponent(
-        "Hello,\n\nI’m interested in hiring IT professionals through ITportal.\nPlease contact me to discuss my requirements.\n\nRegards,"
-      )}`} className="primary-btn primary-btn-glow">
-        Start Trial
-      </a>
-    </div>
-
-  </div>
-
-  <p className="trial-highlight reveal">
-    ⚡ No contracts · No lock-in · Pay only if you continue
-  </p>
-
-</section>
-
-      {/* ================= CONTACT ================= */}
-<section
-  className="contact-section contact-glass"
-  id="contact"
-  style={{
-    position: "relative",
-    padding: "6rem 2rem",
-    background: "rgba(255,255,255,0.1)",
-    backdropFilter: "blur(18px)",
-    borderRadius: "2rem",
-    overflow: "hidden",
-    textAlign: "center",
-    color: "#0f172a",
-  }}
->
-  {/* Floating SVG background */}
-  <svg
-    className="contact-bg"
-    viewBox="0 0 600 300"
-    fill="none"
-    xmlns="http://www.w3.org/2000/svg"
-    style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", zIndex: 0, pointerEvents: "none" }}
-  >
-    <circle cx="80" cy="80" r="18" fill="#6366F1" className="float1" />
-    <circle cx="520" cy="60" r="14" fill="#22D3EE" className="float2" />
-    <circle cx="460" cy="220" r="20" fill="#4ADE80" className="float3" />
-    <circle cx="120" cy="230" r="12" fill="#FBBF24" className="float4" />
-    <line x1="80" y1="80" x2="520" y2="60" stroke="#ffffff33" strokeWidth="2"/>
-    <line x1="120" y1="230" x2="460" y2="220" stroke="#ffffff33" strokeWidth="2"/>
-  </svg>
-
-  <div className="contact-content reveal" style={{ position: "relative", zIndex: 1, maxWidth: "720px", margin: "0 auto" }}>
-    <h2 style={{ fontSize: "2.8rem", fontWeight: 800, marginBottom: "1rem", color: "#4F46E5", textShadow: "0 0 10px rgba(79,70,229,0.3)" }}>
-      Contact an <span style={{ color: "#FBBF24", fontStyle: "italic" }}>IIT Expert</span>
+{/* FINAL CTA */}
+<section className="final-cta">
+  <AnimateOnScroll>
+  <div className="cta-container">
+    <h2 className="cta-title">
+      Start with a clear conversation
     </h2>
 
-    <p style={{
-      fontSize: "1.2rem",
-      fontWeight: 500,
-      lineHeight: "1.8rem",
-      color: "#0f172a",
-      fontStyle: "italic",
-      background: "linear-gradient(90deg, #4F46E5, #6366F1)",
-      WebkitBackgroundClip: "text",
-      WebkitTextFillColor: "transparent",
-      marginBottom: "2.5rem",
-    }}>
-      Discuss your requirements directly with verified <strong>IIT engineers</strong>, and get a solution roadmap within hours.
+    <p className="cta-text">
+      Share what you’re building and the kind of help you’re looking for.
+      We’ll respond with clarity, not sales pressure.
     </p>
 
-    <a
-      className="contact-btn glow-btn"
-      href={`https://mail.google.com/mail/?view=cm&fs=1&to=prakhargar@iitbhilai.ac.in&su=${encodeURIComponent(
-        "ITportal — Request Expert IT Team"
-      )}&body=${encodeURIComponent(
-        "Hello,\n\nI’m interested in hiring IT professionals through ITportal.\nPlease contact me to discuss my requirements.\n\nRegards,"
-      )}`}
-      target="_blank"
-      rel="noopener noreferrer"
-      style={{
-        display: "inline-flex",
-        alignItems: "center",
-        gap: "0.8rem",
-        padding: "0.8rem 2rem",
-        fontSize: "1rem",
-        fontWeight: 700,
-        borderRadius: "12px",
-        background: "linear-gradient(135deg, #4F46E5, #6366F1)",
-        color: "#fff",
-        textDecoration: "none",
-        boxShadow: "0 10px 25px rgba(79,70,229,0.35)",
-        transition: "transform 0.3s ease, box-shadow 0.3s ease",
-      }}
-      onMouseEnter={(e) => { e.currentTarget.style.transform = "translateY(-3px) scale(1.03)"; e.currentTarget.style.boxShadow = "0 15px 40px rgba(79,70,229,0.45)"; }}
-      onMouseLeave={(e) => { e.currentTarget.style.transform = "translateY(0) scale(1)"; e.currentTarget.style.boxShadow = "0 10px 25px rgba(79,70,229,0.35)"; }}
-    >
-      <span>Email Us</span>
-      <svg
-        width="18"
-        height="18"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      >
-        <line x1="5" y1="12" x2="19" y2="12" />
-        <polyline points="12 5 19 12 12 19" />
-      </svg>
-    </a>
+    <div className="cta-actions">
+      <a href="https://mail.google.com/mail/?view=cm&fs=1&to=contact@stackzy.io&su=Stackzy%20Hire%20Professionals&body=Hello%20Team%20Stackzy%2C%0A%0AI%27d%20like%20to%20hire%20professionals.%20Please%20reach%20out%20with%20next%20steps." target="_blank" rel="noopener noreferrer" className="primary-btn" style={{ textDecoration: 'none', display: 'inline-block', textAlign: 'center' }}>Hire professionals</a>
+      <a href="https://mail.google.com/mail/?view=cm&fs=1&to=contact@stackzy.io&su=Stackzy%20Discuss%20Needs&body=Hello%20Team%20Stackzy%2C%0A%0AI%27d%20like%20to%20discuss%20my%20needs.%20Please%20reach%20out." target="_blank" rel="noopener noreferrer" className="secondary-btn" style={{ textDecoration: 'none', display: 'inline-block', textAlign: 'center' }}>Talk to us</a>
+    </div>
   </div>
+  </AnimateOnScroll>
 </section>
 
-
-
-      {/* ================= FOOTER ================= */}
-      <footer
-  className="footer"
-  style={{
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "flex-start",
-    padding: "3rem 4rem",
-    background: "#1e293b",
-    color: "#f8fafc",
-    flexWrap: "wrap",
-    gap: "2rem",
-    borderTop: "2px solid #4f46e5",
-    fontFamily: "'Poppins', sans-serif",
-  }}
->
-  {/* Left Section - About & Address */}
-  <div
-    className="footer-left"
-    style={{
-      maxWidth: "40%",
-      minWidth: "260px",
-      textAlign: "left",
-      fontSize: "0.95rem",
-      lineHeight: "1.6",
-    }}
-  >
-    <strong
-      style={{
-        fontSize: "1.7rem",
-        fontWeight: 900,
-        color: "#fff",
-      }}
-    >
-      ITportal
-    </strong>
-    <p style={{ margin: "0.5rem 0 1rem", color: "#d1d5db" }}>
-      On‑Demand IIT‑Backed IT Talent for Every Project.
-    </p>
-
-    <div style={{ fontSize: "0.9rem", color: "#e5e7eb" }}>
-      <p style={{ margin: "0.3rem 0", fontWeight: 600 }}>📍 Office Address</p>
-      <p style={{ margin: "0.15rem 0" }}>Indian Institute of Technology Bhilai</p>
-      <p style={{ margin: "0.15rem 0" }}>Kutelabhata Village, Durg District</p>
-      <p style={{ margin: "0.15rem 0" }}>Bhilai, 491001, Chhattisgarh, India</p>
-      <p style={{ margin: "0.15rem 0" }}>📧 prakhargar@iitbhilai.ac.in</p>
+{/* FOOTER */}
+<footer className="footer">
+  <div className="footer-container">
+    <div className="footer-left">
+      <a href="#" className="footer-logo">Stack<span>zy</span></a>
+      <p className="footer-text">
+        A quiet network of IIT-backed engineers focused on building meaningful
+        technology.
+      </p>
     </div>
 
-    <p style={{ marginTop: "1rem", color: "#9ca3af", fontSize: "0.85rem" }}>
-      ITportal is a verified IIT-backed IT solutions company, delivering quality services across web, mobile, AI, blockchain, cloud, and product design.
-    </p>
-  </div>
-
-  {/* Middle Section - Quick Links */}
-  <div
-    className="footer-links"
-    style={{
-      display: "flex",
-      flexDirection: "column",
-      gap: "0.8rem",
-      minWidth: "180px",
-      fontSize: "0.95rem",
-      color: "#d1d5db",
-    }}
-  >
-    <strong style={{ color: "#fff", marginBottom: "0.5rem" }}>Quick Links</strong>
-    <a href="#services" style={{ color: "inherit", textDecoration: "none" }}>Services</a>
-    <a href="#pricing" style={{ color: "inherit", textDecoration: "none" }}>Pricing</a>
-    <a href="#how-it-works" style={{ color: "inherit", textDecoration: "none" }}>How It Works</a>
-    <a href="#contact" style={{ color: "inherit", textDecoration: "none" }}>Contact</a>
-    {/* <a href="#privacy" style={{ color: "inherit", textDecoration: "none" }}>Privacy Policy</a>
-    <a href="#terms" style={{ color: "inherit", textDecoration: "none" }}>Terms & Conditions</a> */}
-  </div>
-
-  {/* Right Section - Socials */}
-  <div
-    className="footer-right"
-    style={{
-      display: "flex",
-      flexDirection: "column",
-      gap: "1.5rem",
-      alignItems: "flex-start",
-      fontSize: "1.5rem",
-      color: "#dbdbdb",
-      minWidth: "140px",
-    }}
-  >
-    <strong style={{ color: "#fff", marginBottom: "0.5rem" }}>Follow Us</strong>
-    <div style={{ display: "flex", gap: "1.2rem" }}>
-      {/* LinkedIn */}
-      <a href="https://www.linkedin.com" target="_blank" rel="noopener noreferrer"
-         style={{ color: "inherit", transition: "color 0.3s" }}
-         onMouseEnter={(e) => (e.currentTarget.style.color = "#4f46e5")}
-         onMouseLeave={(e) => (e.currentTarget.style.color = "#dbdbdb")}
-      >
-        <svg width="24" height="24" fill="currentColor">
-          <path d="M4.98 3.5a2.5 2.5 0 110 5 2.5 2.5 0 010-5zM3 8.98h4v12H3zM9 8.98h3.8v1.6h.05a4.2 4.2 0 013.8-2c4.1 0 4.8 2.7 4.8 6.2v6.2h-4v-5.5c0-1.3 0-3-1.8-3s-2.1 1.4-2.1 2.9v5.6H9z"/>
-        </svg>
-      </a>
-      {/* Twitter */}
-      <a href="https://twitter.com" target="_blank" rel="noopener noreferrer"
-         style={{ color: "inherit", transition: "color 0.3s" }}
-         onMouseEnter={(e) => (e.currentTarget.style.color = "#22d3ee")}
-         onMouseLeave={(e) => (e.currentTarget.style.color = "#dbdbdb")}
-      >
-        <svg width="24" height="24" fill="currentColor">
-          <path d="M23 3a10.9 10.9 0 01-3.14 1.53A4.48 4.48 0 0012.1 8v1A10.66 10.66 0 013 4s-4 9 5 13a11.64 11.64 0 01-7 2c9 5 20 0 20-11.5a4.5 4.5 0 00-.08-.83A7.72 7.72 0 0023 3z"/>
-        </svg>
-      </a>
-      {/* GitHub */}
-      <a href="https://github.com" target="_blank" rel="noopener noreferrer"
-         style={{ color: "inherit", transition: "color 0.3s" }}
-         onMouseEnter={(e) => (e.currentTarget.style.color = "#fff")}
-         onMouseLeave={(e) => (e.currentTarget.style.color = "#dbdbdb")}
-      >
-        <svg width="24" height="24" fill="currentColor">
-          <path d="M12 2C6.5 2 2 6.6 2 12.3c0 4.6 2.9 8.5 6.9 9.9.5.1.7-.2.7-.5v-1.8c-2.8.6-3.4-1.4-3.4-1.4-.5-1.2-1.2-1.5-1.2-1.5-1-.7.1-.7.1-.7 1.1.1 1.7 1.2 1.7 1.2 1 .1 1.5-.7 1.8-1.1-2.2-.3-4.6-1.1-4.6-5a3.8 3.8 0 011-2.7 3.5 3.5 0 01.1-2.7s.8-.3 2.8 1a9.7 9.7 0 015 0c2-1.3 2.8-1 2.8-1 .4 1 .1 2.1.1 2.7a3.8 3.8 0 011 2.7c0 3.9-2.4 4.7-4.7 5 .4.3.7.9.7 1.9v2.8c0 .3.2.6.7.5A10.3 10.3 0 0022 12.3C22 6.6 17.5 2 12 2z"/>
-        </svg>
-      </a>
+    <div className="footer-right">
+      <ul>
+        <li><a href="#talents">Hire Talent</a></li>
+        <li><a href="#tech">Technical deep dives</a></li>
+      </ul>
+      <ul>
+        <li><a href="#about">About</a></li>
+        <li><a href="#pricing">Pricing</a></li>
+        <li><a href="#cta">Get Started</a></li>
+      </ul>
+      <ul>
+        <li><a href="#privacy">Privacy Policy</a></li>
+        <li><a href="#terms">Terms & Conditions</a></li>
+        <li><a href="https://mail.google.com/mail/?view=cm&fs=1&to=contact@stackzy.io&su=Stackzy%20Contact&body=Hello%20Team%20Stackzy%2C%0A%0AI%27d%20like%20to%20connect.%20Please%20reach%20out." target="_blank" rel="noopener noreferrer">Contact</a></li>
+      </ul>
     </div>
   </div>
 
-  {/* Bottom copyright */}
-  <div
-    style={{
-      width: "100%",
-      marginTop: "2rem",
-      textAlign: "center",
-      fontSize: "0.8rem",
-      color: "#9ca3af",
-    }}
-  >
-    © 2002 ITportal. All Rights Reserved.
+  <div className="footer-bottom">
+    <p>© 2016-{new Date().getFullYear()} Stackzy. All rights reserved.</p>
   </div>
 </footer>
 
+<section className="footer-brand-anim">
+  <div className="footer-anim-container">
+    <div className="footer-anim-text">Stackzy</div>
+  </div>
+  </section>
+ 
+  {/* END CAP: STACKYFI WAVE */}
+  <section className="stackyfi-cover">
+  <div className="stackyfi-track">
+    <div className="stackyfi-word">STACKZY</div>
+    <div className="stackyfi-sep">•</div>
+    <div className="stackyfi-word">STACKZY</div>
+    <div className="stackyfi-sep">•</div>
+    <div className="stackyfi-word">STACKZY</div>
+  </div>
+  <div className="stackyfi-underline"></div>
+</section>
 
-    </div>
+
+    </>
+    
   );
 }
 
